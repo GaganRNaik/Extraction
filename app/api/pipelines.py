@@ -10,18 +10,18 @@ import app.etl.extractors as extractors
 import app.etl.loaders as loaders
 
 
+
 from sqlmodel import SQLModel
 from app.db.session import engine
 
-SQLModel.metadata.create_all(engine)
 
-app = APIRouter()
+router = APIRouter()
 
-@app.get("/")
+@router.get("/")
 def greet():
     return {"message": "Welcome to the ETL Pipeline API"}
 
-@app.post("/pipelines", response_model=PipelineRead)
+@router.post("/pipelines", response_model=PipelineRead)
 def create_pipeline(p: PipelineCreate):
     with Session(engine) as session:
         pl = Pipeline(**p.dict())
@@ -30,12 +30,12 @@ def create_pipeline(p: PipelineCreate):
         session.refresh(pl)
         return pl
 
-@app.get("/pipelines")
+@router.get("/pipelines")
 def list_pipelines():
     with Session(engine) as session:
         return session.exec(select(Pipeline)).all()
     
-@app.post("/pipelines/{pipelineid}")
+@router.post("/pipelines/{pipelineid}")
 def trigger_pipeline(pipelineid: int):
     with Session(engine) as session:
         pipeline = session.exec(select(Pipeline).where(Pipeline.id == pipelineid)).one_or_none()
@@ -99,32 +99,18 @@ def trigger_pipeline(pipelineid: int):
                 run.logs = "\n".join(logs) + f"\nERROR: {str(e)}"
                 session.add(run)
                 session.commit()
-                # let Celery handle retries (autoretry_for given)
              raise
             # err = f"Extraction failed: {e}"
             # logger.error(err)
             # logs.append(err)
 
         
-        
-        
+    
 
-
-# @app.post("/pipelines/{pipeline_id}/run")
-# def trigger_run(pipeline_id: int, async_mode: bool = True):
-#     # async_mode True => enqueue to Celery
-#     if async_mode:
-#         async_result = run_pipeline.delay(pipeline_id)
-#         return {"task_id": async_result.id}
-#     else:
-#         # for debugging: run synchronously (not recommended for long jobs)
-#         res = run_pipeline.run(pipeline_id)
-#         return res
-
-# @app.get("/runs/{run_id}", response_model=RunRead)
-# def get_run(run_id: int):
-#     with Session(engine) as session:
-#         run = session.get(RunHistory, run_id)
-#         if not run:
-#             raise HTTPException(status_code=404, detail="run not found")
-#         return run
+@router.get("/runs/{run_id}", response_model=RunRead)
+def get_run(run_id: int):
+    with Session(engine) as session:
+        run = session.get(RunHistory, run_id)
+        if not run:
+            raise HTTPException(status_code=404, detail="run not found")
+        return run

@@ -1,5 +1,6 @@
 from typing import Optional, Dict, List
 from pydantic import BaseModel
+from datetime import datetime
 
 class PipelineCreate(BaseModel):
     name: str
@@ -17,7 +18,7 @@ class RunRead(BaseModel):
     id: int
     pipeline_id: int
     status: str
-    started_at: Optional[str]
-    finished_at: Optional[str]
+    started_at: Optional[datetime]|Optional[str]
+    finished_at: Optional[datetime]|Optional[str]
     logs: Optional[str]
     metrics: Optional[Dict]
