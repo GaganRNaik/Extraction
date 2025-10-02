@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState } from "react";
 import { createPipeline } from "../api";
 import { useNavigate } from "react-router-dom";
 // import "tailwindcss"
@@ -28,7 +28,16 @@ export default function PipelineForm() {
       };
       const res = await createPipeline(payload);
       alert("Created: " + res.id);
-      nav("/");
+      e.target.reset();
+      nav("/create");
+      // Clear form fields after successful submission
+      setName("");
+      setSourceType("csv");
+      setSourceConfig('{"path":"/data/example.csv"}');
+      setSteps("{}");
+      setTargetType("bigquery");
+      setTargetConfig("{}");
+      setSchedule("");
     } catch (err) {
       alert("Error: " + err.message);
     }
@@ -152,8 +161,8 @@ export default function PipelineForm() {
             required
           >
             <option value="bigquery">BigQuery</option>
-             <option value="snowflake">Snowflake</option>
-             <option value="redshift">Redshift</option>
+            <option value="snowflake">Snowflake</option>
+            <option value="redshift">Redshift</option>
           </select>
           <label
             for="floating_last_name"
@@ -163,13 +172,14 @@ export default function PipelineForm() {
           </label>
         </div>
       </div>
-
-      <button
-        type="submit"
-        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-      >
-        Submit
-      </button>
+      <div class="flex justify-center items-center">
+        <button
+          type="submit"
+          class="text-white justify-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Submit
+        </button>
+      </div>
     </form>
   );
 }
